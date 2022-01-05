@@ -1,75 +1,157 @@
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+import '@vaadin/charts';
+import { html, LitElement } from 'lit';
 
-import {LitElement, html, css} from 'lit';
-
-/**
- * An example element.
- *
- * @fires count-changed - Indicates when the count changes
- * @slot - This element has a slot
- * @csspart button - The button
- */
-export class MyElement extends LitElement {
-  static get styles() {
-    return css`
-      :host {
-        display: block;
-        border: solid 1px gray;
-        padding: 16px;
-        max-width: 800px;
-      }
-    `;
-  }
+export class TheView extends LitElement {
 
   static get properties() {
     return {
-      /**
-       * The name to say "Hello" to.
-       * @type {string}
-       */
-      name: {type: String},
+      'viewEventsSeries': {
 
-      /**
-       * The number of times the button has been clicked.
-       * @type {number}
-       */
-      count: {type: Number},
-    };
+      },'responseTimesSeries':{}
+    }
   }
-
   constructor() {
     super();
-    this.name = 'World';
-    this.count = 0;
-  }
+    this.monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+  
+  }
   render() {
     return html`
-      <h1>${this.sayHello(this.name)}!</h1>
-      <button @click=${this._onClick} part="button">
-        Click Count: ${this.count}
-      </button>
-      <slot></slot>
+                  ${this.viewEventsSeries &&
+      html`
+                <vaadin-chart
+                  .additionalOptions=${{
+          xAxis: { crosshair: true },
+        }}
+                  .categories=${this.monthNames}
+                  type="area"
+                >
+                  ${this.viewEventsSeries.map(
+          (viewEventSeries) =>
+            html`<vaadin-chart-series
+                        .title=${viewEventSeries.name}
+                        .values=${viewEventSeries.data}
+                      ></vaadin-chart-series>`
+        )}
+                </vaadin-chart>
+              `}
+
+${this.responseTimesSeries &&
+      html`
+                <vaadin-chart type="pie">
+                  <vaadin-chart-series title="Response times" .values=${this.responseTimesSeries}></vaadin-chart-series>
+                </vaadin-chart>
+              `}
+
     `;
   }
 
-  _onClick() {
-    this.count++;
-    this.dispatchEvent(new CustomEvent('count-changed'));
-  }
+  async connectedCallback() {
+    super.connectedCallback();
+    const data1 = [
+      {
+        "name": "Berlin",
+        "data": [
+          189,
+          191,
+          191,
+          196,
+          201,
+          203,
+          209,
+          212,
+          229,
+          242,
+          244,
+          247
+        ]
+      },
+      {
+        "name": "London",
+        "data": [
+          138,
+          146,
+          148,
+          148,
+          152,
+          153,
+          163,
+          173,
+          178,
+          179,
+          185,
+          187
+        ]
+      },
+      {
+        "name": "New York",
+        "data": [
+          65,
+          65,
+          66,
+          71,
+          93,
+          102,
+          108,
+          117,
+          127,
+          129,
+          135,
+          136
+        ]
+      },
+      {
+        "name": "Tokyo",
+        "data": [
+          0,
+          11,
+          17,
+          23,
+          30,
+          42,
+          48,
+          49,
+          52,
+          54,
+          58,
+          62
+        ]
+      }
+    ];
+    const data2 = [
+      {
+        "name": "System 1",
+        "y": 12.5
+      },
+      {
+        "name": "System 2",
+        "y": 12.5
+      },
+      {
+        "name": "System 3",
+        "y": 12.5
+      },
+      {
+        "name": "System 4",
+        "y": 12.5
+      },
+      {
+        "name": "System 5",
+        "y": 12.5
+      },
+      {
+        "name": "System 6",
+        "y": 12.5
+      }
+    ];
 
-  /**
-   * Formats a greeting
-   * @param name {string} The name to say "Hello" to
-   * @returns {string} A greeting directed at `name`
-   */
-  sayHello(name) {
-    return `Hello, ${name}`;
+    const delay = new URLSearchParams(window.location.search).get("delay") || 0;
+    setTimeout(() =>
+      this.viewEventsSeries = data1, 0);
+    setTimeout(() =>
+      this.responseTimesSeries = data2, delay);
   }
 }
 
-window.customElements.define('my-element', MyElement);
+customElements.define("the-view", TheView);
